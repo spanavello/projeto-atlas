@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Atlas - Olimpo</title>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; background-color: #000; font-family: 'Segoe UI', sans-serif; }
+        .fundo-atlas {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('./img/atlas.png');
+            background-size: cover; background-position: center; background-repeat: no-repeat; z-index: 1;
+        }
+        .box { 
+            position: absolute; left: 50%; top: 70%; transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9); padding: 30px; border-radius: 20px; 
+            border: 2px solid #00a2ff; box-shadow: 0 0 30px #00a2ff; width: 320px; 
+            text-align: center; color: white; z-index: 10;
+        }
+        #foto-perfil { width: 120px; height: 120px; border-radius: 50%; border: 3px solid #00a2ff; object-fit: cover; margin-bottom: 15px; }
+        input { padding: 12px; width: 85%; border-radius: 10px; border: none; font-size: 1.1em; text-align: center; margin-bottom: 10px; }
+        button { width: 90%; padding: 12px; background: #00a2ff; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        h1 { margin: 0 0 10px 0; color: #00a2ff; }
+    </style>
+</head>
+<body>
+    <div class="fundo-atlas"></div>
+    <div class="box">
+        <div id="area-foto" style="display:none;"><img id="foto-perfil" src=""></div>
+        <h1 id="msg">ATLAS</h1>
+        <div id="nome-aluno" style="font-size: 1.4em; font-weight: bold;"></div>
+        <div id="status-aluno" style="margin-bottom: 15px; font-weight:bold;"></div>
+        
+        <input type="password" id="senha" placeholder="SENHA" maxlength="11">
+        <button onclick="entrar()">ENTRAR</button>
+    </div>
+
+    <script>
+        async function entrar() {
+            const senhaInput = document.getElementById('senha');
+            const senha = senhaInput.value;
+
+            if(senha === "654321") {
+                const cpf = prompt("ADMIN CPF:");
+                if(cpf === "00000000000") { window.location.href = "admin.html"; return; }
+            }
+
+            try {
+                const res = await fetch('http://localhost:3000/entrada-aluno', {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ senha })
+                });
+                const data = await res.json();
+
+                if(data.success) {
+                    const img = document.getElementById('foto-perfil');
+                    img.src = `img/alunos/${senha}.jpg`;
+                    img.onload = () => document.getElementById('area-foto').style.display = 'block';
+                    img.onerror = () => document.getElementById('area-foto').style.display = 'none';
+
+                    document.getElementById('msg').innerText = "BEM-VINDO";
+                    document.getElementById('nome-aluno').innerText = data.nome;
+                    
+                    const isVitalicio = senha === "00000000000";
+                    document.getElementById('status-aluno').innerText = isVitalicio ? "VITALÍCIO" : data.dias + " DIAS";
+                    document.getElementById('status-aluno').style.color = (isVitalicio || data.dias > 0) ? "#00ff00" : "#ff4444";
+                    
+                    senhaInput.style.display = "none";
+                    document.querySelector('button').style.display = "none";
+                    
+                    setTimeout(() => location.reload(), 5000);
+                } else { alert("ACESSO NEGADO"); }
+            } catch(e) { alert("Erro de conexão!"); }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="CSS/style.css">
+    <title>Olimpo - Bem-vindo</title>
+</head>
+<img class="bg-img" src="img/atlas.jpg" alt="atlas">
+<body class="bg-login">
+    <div class="login-box">
+        <div id="foto-area" style="display:none; margin-bottom: 20px;">
+            <img id="foto-perfil" src="" style="width: 180px; height: 180px; border-radius: 50%; border: 4px solid #00a2ff; object-fit: cover; box-shadow: 0 0 20px #00a2ff;">
+        </div>
+        <h1 style="color:#00a2ff;">BEM-VINDO</h1>
+        <div id="nome-aluno" style="font-size: 2em; font-weight: bold;"></div>
+        <div id="dias-aluno" style="font-size: 1.2em; margin-top: 10px;"></div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            const n = localStorage.getItem('aluno_nome');
+            const d = localStorage.getItem('aluno_dias');
+            const s = localStorage.getItem('aluno_senha');
+
+            if(n) {
+                document.getElementById('nome-aluno').innerText = n;
+                document.getElementById('dias-aluno').innerText = d + " DIAS RESTANTES";
+                const img = document.getElementById('foto-perfil');
+                img.src = `img/alunos/${s}.jpg`;
+                img.onload = () => document.getElementById('foto-area').style.display = 'block';
+            }
+            setTimeout(() => window.location.href = "index.html", 7000);
+        }
+    </script>
+</body>
+</html>
