@@ -4,43 +4,21 @@
     <meta charset="UTF-8">
     <title>Admin - Atlas</title>
     <style>
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            color: white; 
-            padding: 20px; 
-            margin: 0;
-            min-height: 100vh;                
-            /* CORREÇÃO: Nome do arquivo ajustado para espace.jpg */
-            background-image: url('./img/espace.jpg'); 
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-        }
-        
-        .container { 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            background: rgba(0, 0, 0, 0.8); /* Fundo escuro transparente */
-            padding: 20px;
-            border-radius: 12px;
-        }
-        
+        body { font-family: 'Segoe UI', sans-serif; color: white; padding: 20px; margin: 0; min-height: 100vh; background-image: url('./img/espace.jpg'); background-size: cover; background-position: center; background-attachment: fixed; }
+        .container { max-width: 1200px; margin: 0 auto; background: rgba(0, 0, 0, 0.8); padding: 20px; border-radius: 12px; }
         .card { background: #161b22; padding: 20px; border-radius: 12px; border: 1px solid #30363d; margin-bottom: 20px; }
         input, select { padding: 10px; margin: 5px 0; border-radius: 6px; border: 1px solid #30363d; background: #0d1117; color: white; width: 100%; box-sizing: border-box; }
-        button { background: #00a2ff; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
-        
+        button { background: #00a2ff; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
         .btn-voltar { background: #30363d; text-decoration: none; padding: 10px 15px; border-radius: 6px; display: inline-block; margin-bottom: 15px; color: white; }
-        
         table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; background: #161b22; }
-        th, td { padding: 10px; border-bottom: 1px solid #30363d; text-align: left; }
+        th, td { padding: 12px; border-bottom: 1px solid #30363d; text-align: left; }
         th { color: #00a2ff; }
-        .btn-del { background: #ff4444; width: auto; padding: 5px 10px; }
+        .btn-del { background: #ff4444; width: auto; padding: 5px 10px; border: none; border-radius: 4px; color: white; cursor: pointer; }
     </style>
 </head>
 <body>
     <div class="container">
-        <a href="index.html" class="btn-voltar">← Voltar para o Login</a>
-        
+        <a href="index.html" class="btn-voltar">← Sair do Painel</a>
         <div class="card">
             <h2>Novo Cadastro / Renovação</h2>
             <form id="formCad">
@@ -48,7 +26,6 @@
                 <input type="text" id="cpf" placeholder="CPF">
                 <input type="tel" id="telefone" placeholder="WhatsApp">
                 <input type="password" id="senha" placeholder="Senha de Acesso" required>
-                
                 <select id="dias">
                     <option value="30">30 Dias (1 Mês)</option>
                     <option value="60">60 Dias</option>
@@ -56,13 +33,11 @@
                     <option value="180">180 Dias (6 Meses)</option>
                     <option value="365">365 Dias (1 Ano)</option>
                 </select>
-                
                 <label style="display:block; margin-top:10px;">Foto do Aluno:</label>
                 <input type="file" id="foto" accept="image/*">
-                <button type="submit">CADASTRAR ALUNO</button>
+                <button type="submit">SALVAR NO BANCO DE DADOS</button>
             </form>
         </div>
-
         <div class="card">
             <h2>Lista de Membros</h2>
             <table id="tabelaAlunos">
@@ -70,10 +45,9 @@
                     <tr>
                         <th>Nome</th>
                         <th>WhatsApp</th>
-                        <th>Cadastrado</th>
-                        <th>Última Entrada</th>
                         <th>Status</th>
                         <th>Dias</th>
+                        <th>Última Entrada</th>
                         <th>Ação</th>
                     </tr>
                 </thead>
@@ -81,36 +55,29 @@
             </table>
         </div>
     </div>
-
     <script>
-        async function registrarEntrada() {
-            try {
-                await fetch('http://localhost:3000/registrar-log', { method: 'POST' });
-            } catch (error) {
-                console.error("Erro ao registrar log:", error);
-            }
+        async function registrarLog() {
+            try { await fetch('http://localhost:3000/registrar-log', { method: 'POST' }); } catch (e) {}
         }
-
         async function listar() {
-            const res = await fetch('http://localhost:3000/listar-alunos');
-            const data = await res.json();
-            const tbody = document.querySelector('tbody');
-            tbody.innerHTML = '';
-            data.forEach(a => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${a.nome}</td>
-                        <td>${a.telefone}</td>
-                        <td style="color:#888;">${a.dataCadastro || '-'}</td>
-                        <td style="color:#aaa;">${a.ultimaEntrada || '-'}</td>
-                        <td style="color:${a.status === 'ATIVO' ? '#00ff00' : '#ff4444'}">${a.status}</td>
-                        <td>${a.diasRestantes}</td>
-                        <td><button class="btn-del" onclick="remover('${a.id}')">X</button></td>
-                    </tr>
-                `;
-            });
+            try {
+                const res = await fetch('http://localhost:3000/listar-alunos');
+                const data = await res.json();
+                const tbody = document.querySelector('tbody');
+                tbody.innerHTML = '';
+                data.forEach(a => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${a.nome}</td>
+                            <td>${a.telefone}</td>
+                            <td style="color:${a.status === 'ATIVO' ? '#00ff00' : '#ff4444'}"><strong>${a.status}</strong></td>
+                            <td>${a.diasRestantes}</td>
+                            <td style="color:#aaa;">${a.ultimaEntrada || '-'}</td>
+                            <td><button class="btn-del" onclick="remover('${a.id}')">X</button></td>
+                        </tr>`;
+                });
+            } catch (e) { console.error("Erro ao listar:", e); }
         }
-
         document.getElementById('formCad').onsubmit = async (e) => {
             e.preventDefault();
             const formData = new FormData();
@@ -119,22 +86,20 @@
             formData.append('telefone', document.getElementById('telefone').value);
             formData.append('senha', document.getElementById('senha').value);
             formData.append('dias', document.getElementById('dias').value);
-            
             const foto = document.getElementById('foto').files[0];
             if(foto) formData.append('foto', foto);
-
-            await fetch('http://localhost:3000/adicionar-aluno', { method: 'POST', body: formData });
-            location.reload();
+            try {
+                const res = await fetch('http://localhost:3000/adicionar-aluno', { method: 'POST', body: formData });
+                if(res.ok) { alert("Sucesso!"); location.reload(); }
+            } catch (e) { alert("Erro ao salvar!"); }
         };
-
         async function remover(id) {
             if(confirm("Excluir aluno?")) {
                 await fetch(`http://localhost:3000/remover-aluno/${id}`, { method: 'DELETE' });
                 listar();
             }
         }
-
-        registrarEntrada();
+        registrarLog();
         listar();
     </script>
 </body>
